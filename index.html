@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Hyrox VF — Plan</title>
+
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#111827" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Hyrox VF" />
+
+  <style>
+    :root{--bg:#0b1220;--muted:#94a3b8;--text:#e5e7eb;--radius:16px}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      background:linear-gradient(180deg,var(--bg),#060a14);color:var(--text)}
+    header{position:sticky;top:0;z-index:10;backdrop-filter:saturate(180%) blur(14px);
+      background:rgba(11,18,32,.75);border-bottom:1px solid rgba(31,42,68,.7);padding:16px 16px 10px}
+    .title{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    h1{font-size:16px;margin:0}
+    .sub{font-size:12px;color:var(--muted);margin-top:6px}
+    .row{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap}
+    .tab{border:1px solid rgba(31,42,68,.9);background:rgba(15,23,42,.7);color:var(--text);
+      padding:10px 12px;border-radius:999px;font-size:13px;cursor:pointer}
+    .tab[aria-selected="true"]{border-color:rgba(96,165,250,.9);box-shadow:0 0 0 2px rgba(96,165,250,.15) inset;color:#dbeafe}
+    .controls{display:flex;gap:10px;flex:1;min-width:260px;justify-content:flex-end;flex-wrap:wrap}
+    input[type="search"], select{
+      width:100%; max-width:420px;
+      padding:10px 12px;border-radius:12px;
+      border:1px solid rgba(31,42,68,.9);
+      background:rgba(15,23,42,.65);
+      color:var(--text);
+      outline:none;
+    }
+    select{max-width:320px}
+    .btn{padding:10px 12px;border-radius:12px;border:1px solid rgba(31,42,68,.9);
+      background:rgba(15,23,42,.65);color:var(--text);cursor:pointer;white-space:nowrap}
+    main{padding:16px;max-width:1100px;margin:0 auto}
+    .card{background:rgba(15,23,42,.7);border:1px solid rgba(31,42,68,.9);border-radius:var(--radius);overflow:hidden}
+    .cardHead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:14px 14px 10px;
+      border-bottom:1px solid rgba(31,42,68,.7)}
+    .cardHead h2{margin:0;font-size:14px}
+    .muted{color:var(--muted);font-size:12px}
+    .chips{display:flex;gap:6px;flex-wrap:wrap}
+    .chip{font-size:12px;padding:6px 10px;border-radius:999px;background:rgba(17,28,51,.9);
+      border:1px solid rgba(31,42,68,.8);white-space:nowrap}
+    .tableWrap{overflow:auto}
+    table{width:100%;border-collapse:separate;border-spacing:0;min-width:980px}
+    th,td{padding:12px;border-bottom:1px solid rgba(31,42,68,.65);vertical-align:top;font-size:13px;line-height:1.35}
+    th{position:sticky;top:0;background:rgba(15,23,42,.95);z-index:2;font-size:12px;color:var(--muted);
+      text-transform:uppercase;letter-spacing:.08em}
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;padding:12px 14px;border-top:1px solid rgba(31,42,68,.7);
+      align-items:center;justify-content:space-between}
+    .hint{font-size:12px;color:var(--muted)}
+    .toggle{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--muted)}
+    .switch{width:44px;height:26px;border-radius:999px;border:1px solid rgba(31,42,68,.9);
+      background:rgba(15,23,42,.65);position:relative;cursor:pointer}
+    .knob{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;
+      background:rgba(96,165,250,.9);transition:transform .2s ease}
+    .switch[data-on="true"] .knob{transform:translateX(18px)}
+    @media (max-width:720px){
+      .controls{justify-content:flex-start}
+      input[type="search"], select{max-width:100%}
+      main{padding:12px}
+      header{padding:14px 12px 10px}
+      table{min-width:920px}
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="title">
+    <h1>Hyrox VF — Plan</h1>
+    <span class="chip" id="metaChip">—</span>
+  </div>
+  <div class="sub">Choisis le bloc (Jan → Sept), puis Séance A/B/C/D.</div>
+
+  <div class="row">
+    <div class="tabs" role="tablist" aria-label="Séances">
+      <button class="tab" role="tab" aria-selected="true" data-view="A">Séance A</button>
+      <button class="tab" role="tab" aria-selected="false" data-view="B">Séance B</button>
+      <button class="tab" role="tab" aria-selected="false" data-view="C">Séance C</button>
+      <button class="tab" role="tab" aria-selected="false" data-view="D">Option D</button>
+    </div>
+
+    <div class="controls">
+      <select id="blockSelect" aria-label="Choisir un bloc"></select>
+      <input id="q" type="search" placeholder="Rechercher…" autocomplete="off" />
+      <button class="btn" id="reset">Réinitialiser</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="card" aria-live="polite">
+    <div class="cardHead">
+      <div>
+        <h2 id="sessionTitle"></h2>
+        <div class="muted" id="sessionSubtitle"></div>
+      </div>
+      <div class="chips" id="tags"></div>
+    </div>
+
+    <div class="tableWrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Bloc</th>
+            <th>Exercice</th>
+            <th>Volume</th>
+            <th>Consignes simples</th>
+            <th>Récupération</th>
+            <th>Variable</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="toolbar">
+      <div class="hint" id="countHint"></div>
+      <div class="toggle">
+        <span>Uniquement “Spécifique”</span>
+        <div class="switch" id="onlySpecific" data-on="false" role="switch" aria-checked="false">
+          <div class="knob"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+  // Blocs jusqu'à Septembre
+  const PLANS = [
+    {
+      id: "B1",
+      label: "Bloc 1 (Jan–Fév) — Bases VF",
+      meta: "Bloc 1 • Jan–Fév • ≤ 1h30",
+      sessions: {
+        A: {
+          title:"Séance A — Force + Traîneau (VF)",
+          subtitle:"1h15 à 1h30",
+          tags:["Force","Traîneau push","Traîneau pull"],
+          rows:[
+            ["Échauffement","Cardio facile (rameur/tapis/vélo)","5 min","Tranquille","—","+1–2 min (max 8)"],
+            ["Échauffement","Squat poids du corps","2 x 10","Talons au sol","30 sec","+1 tour (max 3)"],
+            ["Échauffement","Fentes alternées","2 x 10 (5/5)","Buste droit","30 sec","+1 tour (max 3)"],
+            ["Échauffement","Tirage horizontal léger (poulie)","2 x 12","Épaules basses","45 sec","+2–5 kg"],
+            ["Échauffement","Gainage","2 x 20 sec","Aligné","45 sec","+5–10 sec (max 45)"],
+            ["Force","Goblet squat","4 x 8","Propre, contrôle","1:30–2:00","+2 kg ou +1 rep (max 10)"],
+            ["Force","Soulevé de terre roumain","4 x 8","Hanches arrière, dos plat","1:30–2:00","+2–5 kg ou +1 rep (max 10)"],
+            ["Force","Développé épaules (haltères)","3 x 10","Sans cambrer","1:15–1:30","+1–2 kg total ou +1 rep (max 12)"],
+            ["Force","Tirage horizontal (poulie/rowing)","3 x 10","Tire vers le ventre","1:15–1:30","+2–5 kg ou +1 rep (max 12)"],
+            ["Force","Gainage","3 x 30–45 sec","Respire","45–60 sec","+5 sec (max 60)"],
+            ["Spécifique","Traîneau push","6 x 15–20 m","Rythme régulier","1–2 min","+5 m (jusqu’à 20) puis +5–10 kg"],
+            ["Spécifique","Traîneau pull","6 x 15–20 m","Recule propre","1–2 min","+5 m (jusqu’à 20) puis +5–10 kg"],
+            ["Retour au calme","Marche + étirements","5–8 min","Relâche","—","—"]
+          ]
+        },
+        B: {
+          title:"Séance B — Course qualité + SkiErg (VF)",
+          subtitle:"1h10 à 1h25",
+          tags:["Intervalles","SkiErg","Renfo court"],
+          rows:[
+            ["Échauffement","Footing facile","8 min","Tu peux parler","—","+2 min (max 12)"],
+            ["Échauffement","Accélérations","4 x 20 sec","Un peu plus vite","40 sec marche","—"],
+            ["Course","Intervalles","6–8 x 2 min","Effort 7/10","2 min facile","+1 rep (max 8) puis un peu plus vite"],
+            ["Course","Intervalles","6 x 3 min","Effort 7/10","2 min facile","+1 rep (max 7) puis un peu plus vite"],
+            ["Spécifique","SkiErg","6 x 1 min","Effort 7/10","1 min facile","+1 rep (max 8) puis +10 sec"],
+            ["Renfo court","Step-ups","3 x 12 (6/6)","Sans impulsion","60 sec","+1 rep (max 16) puis haltères légers"],
+            ["Renfo court","Burpees “propres”","3 x 8–10","Régulier","60–90 sec","monter à 3 x 10 puis réduire repos"],
+            ["Renfo court","Gainage latéral","3 x 30 sec","15 sec/côté","45–60 sec","+5 sec (max 45)"]
+          ]
+        },
+        C: {
+          title:"Séance C — Endurance + Circuit VF léger",
+          subtitle:"1h10 à 1h30",
+          tags:["Footing","Circuit VF","Sandbag","Wall balls"],
+          rows:[
+            ["Échauffement","Marche + mobilité","8–10 min","Chevilles/hanches","—","—"],
+            ["Endurance","Footing facile","35–45 min","Effort 5/10","—","+5 min (max 60)"],
+            ["Circuit VF","3 tours (enchaînés)","—","Propre, régulier","—","+1 tour (→4) puis augmenter 1 élément"],
+            ["Circuit VF","Course","400 m","Facile","0–30 sec si besoin","400 → 500/600 m"],
+            ["Circuit VF","Rameur","250 m","Régulier","0–30 sec si besoin","250 → 300/350 m"],
+            ["Circuit VF","Sandbag lunges","12–16 pas","Buste droit","30–60 sec si besoin","+2 pas (max 20) puis +2–5 kg"],
+            ["Circuit VF","Farmer carry","60–80 m","Posture solide","30–60 sec si besoin","+10–20 m puis +2 kg/main"],
+            ["Circuit VF","Wall balls","12–15 reps","Cadence stable","0–30 sec si besoin","+3 reps (max 20) puis balle + lourde"],
+            ["Circuit VF","Entre les tours","—","Repartir propre","60 sec max","réduire à 30–45 sec"]
+          ]
+        },
+        D: {
+          title:"Option D — Bonus cardio + mobilité",
+          subtitle:"45 à 60 min",
+          tags:["Récup","Fond","Mobilité"],
+          rows:[
+            ["Cardio facile","Vélo / rameur / footing cool","45–60 min","Effort 4–5/10","—","+5–10 min si bonne récup"],
+            ["Mobilité","Hanches/chevilles/épaules","10 min","Lent","—","—"]
+          ]
+        }
+      }
+    },
+
+    {
+      id: "B2",
+      label: "Bloc 2 (Mar–Avr) — Construire VF",
+      meta: "Bloc 2 • Mar–Avr • ≤ 1h30",
+      sessions: {
+        A: {
+          title:"Séance A — Force + Traîneau (plus solide)",
+          subtitle:"1h15 à 1h30",
+          tags:["Force + lourd","Traîneau 20 m","Wall balls"],
+          rows:[
+            ["Échauffement","Cardio facile","6–8 min","Tranquille","—","stabiliser"],
+            ["Force","Goblet squat","5 x 6","Plus lourd, propre","2:00","+2 kg quand toutes les séries passent"],
+            ["Force","Soulevé de terre roumain","5 x 6","Dos plat","2:00","+2–5 kg quand propre"],
+            ["Force","Développé épaules (haltères)","4 x 8","Contrôle","1:30","+1–2 kg total"],
+            ["Force","Tirage horizontal (poulie/rowing)","4 x 8","Tire vers le ventre","1:30","+2–5 kg"],
+            ["Force","Gainage","3 x 45–60 sec","Aligné","60 sec","+5 sec (max 75)"],
+            ["Spécifique","Traîneau push","6 x 20 m","Régulier","1–2 min","+5–10 kg quand sans arrêt"],
+            ["Spécifique","Traîneau pull","6 x 20 m","Recule propre","1–2 min","+5–10 kg quand sans arrêt"],
+            ["Spécifique","Wall balls","4 x 15","Cadence stable","60–90 sec","+5 reps ou balle + lourde"],
+            ["Retour au calme","Marche + étirements","5–8 min","Relâche","—","—"]
+          ]
+        },
+        B: {
+          title:"Séance B — Course (1 km) + SkiErg",
+          subtitle:"1h10 à 1h25",
+          tags:["1 km","SkiErg"],
+          rows:[
+            ["Échauffement","Footing facile","10–12 min","Tranquille","—","stabiliser"],
+            ["Course","Répétitions 1 km","4–5 x 1 km","Soutenu 7/10","2–3 min facile","+1 répétition puis un peu plus vite"],
+            ["Spécifique","SkiErg","5 x 2 min","7/10","1 min facile","+1 répétition (max 7)"],
+            ["Renfo court","Step-ups","3 x 14 (7/7)","Propre","60 sec","+2 reps puis haltères"],
+            ["Renfo court","Burpees","3 x 10","Régulier","60 sec","réduire repos"],
+            ["Renfo court","Gainage latéral","3 x 40 sec","20 sec/côté","45–60 sec","+5 sec (max 60)"]
+          ]
+        },
+        C: {
+          title:"Séance C — Endurance + Circuit VF (plus long)",
+          subtitle:"1h15 à 1h30",
+          tags:["4 tours","Sandbag","Wall balls"],
+          rows:[
+            ["Endurance","Footing facile","45–55 min","Effort 5/10","—","+5 min (max 60)"],
+            ["Circuit VF","4 tours (enchaînés)","—","Propre, régulier","—","réduire repos"],
+            ["Circuit VF","Course","500 m","Facile","0–30 sec","500 → 600 m"],
+            ["Circuit VF","Rameur","300 m","Régulier","0–30 sec","300 → 350 m"],
+            ["Circuit VF","Sandbag lunges","16–20 pas","Buste droit","30–60 sec","+2–5 kg quand propre"],
+            ["Circuit VF","Farmer carry","80–100 m","Posture solide","30–60 sec","+2 kg/main"],
+            ["Circuit VF","Wall balls","15–20 reps","Cadence stable","0–30 sec","balle + lourde si OK"],
+            ["Circuit VF","Entre les tours","—","Repartir propre","45 sec max","45 → 30 sec"]
+          ]
+        },
+        D: {
+          title:"Option D — Bonus cardio + mobilité",
+          subtitle:"45 à 60 min",
+          tags:["Récup"],
+          rows:[
+            ["Cardio facile","Vélo / rameur / footing cool","45–60 min","Effort 4–5/10","—","stabiliser"],
+            ["Mobilité","Hanches/chevilles/épaules","10 min","Lent","—","—"]
+          ]
+        }
+      }
+    },
+
+    {
+      id: "B3",
+      label: "Bloc 3 (Mai–Juin) — Spécifique Hyrox VF",
+      meta: "Bloc 3 • Mai–Juin • ≤ 1h30",
+      sessions: {
+        A: {
+          title:"Séance A — Force entretien + Traîneau",
+          subtitle:"1h10 à 1h30",
+          tags:["Entretien","Traîneau 25 m","Wall balls 25+"],
+          rows:[
+            ["Force","Goblet squat","4 x 6","Lourd mais propre","2:00","+2 kg si technique OK"],
+            ["Force","Soulevé de terre roumain","4 x 6","Dos plat","2:00","+2–5 kg si OK"],
+            ["Force","Développé épaules (haltères)","3 x 8","Contrôle","1:30","+1–2 kg total"],
+            ["Force","Tirage horizontal","3 x 8","Tire vers le ventre","1:30","+2–5 kg"],
+            ["Spécifique","Traîneau push","5 x 25 m","Régulier","1–2 min","+5–10 kg ou +5 m"],
+            ["Spécifique","Traîneau pull","5 x 25 m","Recule propre","1–2 min","+5–10 kg ou +5 m"],
+            ["Spécifique","Wall balls","3 x 25","Rythme","90 sec","+5 reps ou balle + lourde"],
+            ["Retour au calme","Marche + étirements","5–8 min","Relâche","—","—"]
+          ]
+        },
+        B: {
+          title:"Séance B — Combo Course + SkiErg",
+          subtitle:"1h10 à 1h25",
+          tags:["Combo","Enchaînement"],
+          rows:[
+            ["Échauffement","Footing facile","10 min","Tranquille","—","—"],
+            ["Spécifique","Combo (tours)","4–5 tours","Enchaîner","2–3 min entre tours","+1 tour puis réduire repos"],
+            ["Spécifique","Course","1 km","Effort 6–7/10","—","un peu plus vite si stable"],
+            ["Spécifique","SkiErg","2 min","Effort 7/10","—","+10–20 sec ou +intensité"],
+            ["Finisher","Burpees","2 x 12","Propre","60–90 sec","réduire repos"]
+          ]
+        },
+        C: {
+          title:"Séance C — Stations (course + atelier)",
+          subtitle:"1h15 à 1h30",
+          tags:["Stations","Rotation ateliers"],
+          rows:[
+            ["Endurance","Footing facile","35–45 min","Effort 5/10","—","stabiliser"],
+            ["Spécifique","Tours (station + course)","6 tours","Régulier","60–90 sec entre tours","6 → 7 tours"],
+            ["Spécifique","Course","800 m","Effort 6/10","—","800 → 1 000 m"],
+            ["Spécifique","Station (rotation)","1 station / tour","SkiErg / Rameur / Sandbag / Farmer / Wall","—","augmenter 1 seul élément"],
+            ["Stations (ex)","SkiErg","1 min 30","7/10","—","+10 sec"],
+            ["Stations (ex)","Rameur","300–400 m","Régulier","—","+50 m"],
+            ["Stations (ex)","Sandbag lunges","20–24 pas","Buste droit","—","+2–5 kg"],
+            ["Stations (ex)","Farmer carry","100 m","Posture solide","—","+2 kg/main"],
+            ["Stations (ex)","Wall balls","20–30 reps","Cadence","—","+5 reps"]
+          ]
+        },
+        D: {
+          title:"Option D — Bonus cardio + mobilité",
+          subtitle:"45 à 60 min",
+          tags:["Récup"],
+          rows:[
+            ["Cardio facile","Vélo / rameur / footing cool","45–60 min","Effort 4–5/10","—","stabiliser"],
+            ["Mobilité","Hanches/chevilles/épaules","10 min","Lent","—","—"]
+          ]
+        }
+      }
+    },
+
+    {
+      id: "B4",
+      label: "Bloc 4 (Juil–Août → Sept) — Simu + Allègement",
+      meta: "Bloc 4 • Juil–Sept • ≤ 1h30",
+      sessions: {
+        A: {
+          title:"Séance A — Force léger + Traîneau",
+          subtitle:"1h00 à 1h20",
+          tags:["Léger","Technique","Traîneau"],
+          rows:[
+            ["Force","Goblet squat","3 x 6","Propre, pas à l’échec","1:30–2:00","stabiliser"],
+            ["Force","Soulevé de terre roumain","3 x 6","Dos plat","1:30–2:00","stabiliser"],
+            ["Force","Tirage horizontal","3 x 8","Contrôle","1:15–1:30","stabiliser"],
+            ["Spécifique","Traîneau push","4 x 20–25 m","Régulier","1–2 min","stabiliser ou +5 m"],
+            ["Spécifique","Traîneau pull","4 x 20–25 m","Régulier","1–2 min","stabiliser ou +5 m"],
+            ["Spécifique","Wall balls","2–3 x 20","Cadence","90 sec","stabiliser"],
+            ["Retour au calme","Marche + étirements","5–8 min","Relâche","—","—"]
+          ]
+        },
+        B: {
+          title:"Séance B — Simulation (réduit → complet)",
+          subtitle:"1h10 à 1h30",
+          tags:["Simulation","1 km + station"],
+          rows:[
+            ["Échauffement","Footing facile","10 min","Tranquille","—","—"],
+            ["Spécifique","Simulation","6 → 8 enchaînements","1 km + 1 station","90 sec entre enchaînements","6 → 7 → 8"],
+            ["Stations (ex)","SkiErg","500–700 m","Régulier","—","+100 m"],
+            ["Stations (ex)","Traîneau push","15–20 m","Rythme","—","stabiliser"],
+            ["Stations (ex)","Traîneau pull","15–20 m","Rythme","—","stabiliser"],
+            ["Stations (ex)","Rameur","500 m","Régulier","—","+100 m"],
+            ["Stations (ex)","Farmer carry","100–150 m","Posture","—","+25 m"],
+            ["Stations (ex)","Sandbag lunges","20–30 pas","Buste droit","—","+2–5 kg"],
+            ["Stations (ex)","Wall balls","30–50 reps","Cadence","—","+5 reps"]
+          ]
+        },
+        C: {
+          title:"Séance C — Endurance facile + rappel stations",
+          subtitle:"1h00 à 1h20",
+          tags:["Récup active","Rappels"],
+          rows:[
+            ["Endurance","Footing facile","35–50 min","Effort 5/10","—","réduire -30% sur les 2 dernières semaines"],
+            ["Rappel","SkiErg","3 x 2 min","7/10","1 min","stabiliser"],
+            ["Rappel","Sandbag lunges","2 x 20 pas","Propre","90 sec","stabiliser"],
+            ["Rappel","Wall balls","2 x 20","Cadence","90 sec","stabiliser"]
+          ]
+        },
+        D: {
+          title:"Option D — Très facile + mobilité",
+          subtitle:"30 à 50 min",
+          tags:["Allègement"],
+          rows:[
+            ["Cardio facile","Vélo / marche inclinée / footing très cool","30–50 min","Effort 4/10","—","réduire -30% sur les 2 dernières semaines"],
+            ["Mobilité","Hanches/chevilles/épaules","10 min","Lent","—","—"]
+          ]
+        }
+      }
+    }
+  ];
+
+  const tabs = [...document.querySelectorAll(".tab")];
+  const tbody = document.getElementById("tbody");
+  const title = document.getElementById("sessionTitle");
+  const subtitle = document.getElementById("sessionSubtitle");
+  const tags = document.getElementById("tags");
+  const q = document.getElementById("q");
+  const reset = document.getElementById("reset");
+  const countHint = document.getElementById("countHint");
+  const onlySpecific = document.getElementById("onlySpecific");
+  const blockSelect = document.getElementById("blockSelect");
+  const metaChip = document.getElementById("metaChip");
+
+  let state = { blockId: "B1", view:"A", query:"", onlySpecific:false };
+
+  function esc(s){
+    return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;").replaceAll("'","&#039;");
+  }
+
+  function getBlock(){
+    return PLANS.find(b => b.id === state.blockId) || PLANS[0];
+  }
+
+  function renderBlockOptions(){
+    blockSelect.innerHTML = PLANS.map(b => `<option value="${esc(b.id)}">${esc(b.label)}</option>`).join("");
+    blockSelect.value = state.blockId;
+  }
+
+  function render(){
+    const block = getBlock();
+    const session = block.sessions[state.view];
+
+    metaChip.textContent = block.meta;
+    title.textContent = session.title;
+    subtitle.textContent = session.subtitle;
+
+    tags.innerHTML = "";
+    session.tags.forEach(t=>{
+      const el=document.createElement("span");
+      el.className="chip";
+      el.textContent=t;
+      tags.appendChild(el);
+    });
+
+    const needle = state.query.trim().toLowerCase();
+    const rows = session.rows.filter(r=>{
+      if (state.onlySpecific && String(r[0]).toLowerCase()!=="spécifique") return false;
+      if (!needle) return true;
+      return r.join(" ").toLowerCase().includes(needle);
+    });
+
+    tbody.innerHTML = rows.map(r=>`
+      <tr>
+        <td>${esc(r[0])}</td>
+        <td>${esc(r[1])}</td>
+        <td>${esc(r[2])}</td>
+        <td>${esc(r[3])}</td>
+        <td>${esc(r[4])}</td>
+        <td>${esc(r[5])}</td>
+      </tr>
+    `).join("");
+
+    countHint.textContent = `${rows.length} lignes affichées`;
+  }
+
+  tabs.forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      tabs.forEach(b=>b.setAttribute("aria-selected","false"));
+      btn.setAttribute("aria-selected","true");
+      state.view = btn.dataset.view;
+      state.query = "";
+      q.value = "";
+      render();
+      window.scrollTo({top:0, behavior:"smooth"});
+    });
+  });
+
+  blockSelect.addEventListener("change", (e)=>{
+    state.blockId = e.target.value;
+    state.query = "";
+    q.value = "";
+    render();
+    window.scrollTo({top:0, behavior:"smooth"});
+  });
+
+  q.addEventListener("input", e=>{ state.query=e.target.value; render(); });
+
+  reset.addEventListener("click", ()=>{
+    state.query=""; q.value="";
+    state.onlySpecific=false;
+    onlySpecific.dataset.on="false";
+    onlySpecific.setAttribute("aria-checked","false");
+    render();
+  });
+
+  onlySpecific.addEventListener("click", ()=>{
+    state.onlySpecific=!state.onlySpecific;
+    onlySpecific.dataset.on=state.onlySpecific?"true":"false";
+    onlySpecific.setAttribute("aria-checked", state.onlySpecific?"true":"false");
+    render();
+  });
+
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", ()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+  }
+
+  renderBlockOptions();
+  render();
+</script>
+</body>
+</html>
